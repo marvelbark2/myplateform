@@ -1,5 +1,5 @@
 <template>
-  <h1>List Semester</h1>
+  <h1>ECUE INDEX</h1>
 </template>
 
 <script>

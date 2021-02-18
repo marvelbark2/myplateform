@@ -13,7 +13,7 @@ const ctrl = require('../controllers/EcueNote');
 const router = express.Router();
 
 router.route('/epv/coef').post(ctrl.addEpvCoeff);
-router.route('/epv').get(ctrl.listEpv);
+router.route('/epv').get(ctrl.listEpv).patch(ctrl.editEpv);
 router.route('/epv/:id').get(ctrl.readEpv);
 router.route('/epv/form/:ecueId').get(ctrl.epvAllRequired);
 router.route('/ecue/').get(ctrl.listEcueNote);
@@ -39,15 +39,20 @@ router.get('/epv-note/:ecueId', async (req, res, next) => {
     );
     const ecueCoef = ecueCoefDb[0].coef;
     let ecueNote = 0;
+    const coefId = [];
     for (const noteEpv of noteList) {
       const epvCoef = await EpvCoef.query()
         .select('coef', 'id', 'epv_type_id')
         .where('ecue_id', ecueId)
         .where('epv_type_id', noteEpv.epv_type_id)
         .orderBy('id');
-      const data = noteEpv.note * epvCoef[0].coef;
+      const coefFilter = epvCoef.filter((item) => !coefId.includes(item.id));
+
+      const data = noteEpv.note * coefFilter[0].coef;
       ecueNote += data;
+      coefId.push(coefFilter[0].id);
     }
+
     const noteEcue = ecueNote / ecueCoef;
     const note = noteEcue.toFixed(2);
     await EcueNote.query().insert({

@@ -2,9 +2,9 @@ import { createRouter , createWebHistory } from "vue-router";
 import Hello from "@/components/Hello";
 import Home from "@/components/Home";
 import Login from "@/components/Auth/Login";
-import SemestreList from "@/pages/Notes/Semestre/List";
 import authMiddleware from './AuthMiddleware';
-import EpvList from "@/pages/Notes/Ecue/Epv";
+import EpvAdd from "@/pages/Notes/Ecue/Epv/Add";
+import EpvList from "@/pages/Notes/Ecue/Epv/List";
 
 const routes = [
   {
@@ -29,17 +29,17 @@ const routes = [
     }
   },
   {
-    path: "/semestre/list",
-    name: "SmestreList",
-    component: SemestreList,
+    path: "/ecue/epv/list",
+    name: "EpvList",
+    component: EpvList,
     meta: {
       requiresAuth: true
     }
   },
   {
-    path: "/ecue/epv/form/:id",
-    name: "epvList",
-    component: EpvList,
+    path: "/ecue/epv/add",
+    name: "EpvAdd",
+    component: EpvAdd,
     meta: {
       requiresAuth: true
     }
@@ -52,4 +52,5 @@ const router = createRouter({
   routes
 });
 authMiddleware(router);
+
 export default router;

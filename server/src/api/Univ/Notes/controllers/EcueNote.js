@@ -1,7 +1,9 @@
+/* eslint-disable no-loop-func */
 /* eslint-disable eol-last */
 /* eslint-disable prefer-const */
 /* eslint-disable no-await-in-loop */
 /* eslint-disable no-restricted-syntax */
+const { EcueModel } = require('../../Models/Ecue');
 const { UeModel } = require('../../Models/Ues');
 const { EcueNote } = require('../Model/EcueNote');
 const { EpvCoef } = require('../Model/EpvCoef');
@@ -48,19 +50,48 @@ exports.epvAllRequired = async (req, res, next) => {
   try {
     let result = [];
     const epvCoef = await EpvCoef.query().where('ecue_id', req.params.ecueId).withGraphFetched('type');
+    const ecue = await EcueModel.query().findById(req.params.ecueId);
+    let completed = true;
     for (const coef of epvCoef) {
       const epvNote = await EpvNote.query().where('ecue_id', req.params.ecueId).where('epv_type_id', coef.type.id).withGraphFetched('epvType');
       if (epvNote.length !== 0) {
-        epvNote.forEach((note) => result.push(note));
+        result.push(epvNote[0]);
+        epvNote.forEach((en) => {
+          if (en.note === null) {
+            completed = false;
+          }
+        });
       } else {
+        completed = false;
         result.push({
-          ecue_id: req.params.ecueId, epv_type_id: coef.type.id, note: null, active: true
+          ecue_id: req.params.ecueId, note: null, epvType: coef.type, active: true
         });
       }
     }
     res.status(200).json({
       success: true,
-      data: result,
+      data: {
+        ecue,
+        completed,
+        note: result
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.editEpv = async (req, res, next) => {
+  try {
+    const data = req.body;
+    if (data.id) {
+      await EpvNote.query().findById(data.id).patch(data);
+    } else {
+      await EpvNote.query().insert(data);
+    }
+    res.status(200).json({
+      success: true,
+      data: 'Data updated successfully'
     });
   } catch (error) {
     next(error);

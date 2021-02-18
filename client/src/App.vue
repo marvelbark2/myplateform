@@ -44,13 +44,11 @@
 
 <script>
 import Sidebar from "./components/partials/Sidebar";
-import Narbar from "./components/partials/Navbar";
 
 export default {
   name: "App",
   components: {
-    Sidebar,
-    Narbar,
+    Sidebar
   },
   data() {
     return {
